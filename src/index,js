@@ -4,8 +4,8 @@
 // @description  オークタウンのカスタマイズするぞ
 // @author       ノラネコ技術工房<http://noraneko.tech/>
 // @version      2021-02-05
-// @updateURL    https://github.com/mojax-inc/tempermonky-customize-at/main/src/index.js
-// @downloadURL  https://github.com/mojax-inc/tempermonky-customize-at/main/src/index.js
+// @updateURL    https://raw.githubusercontent.com/mojax-inc/tempermonky-customize-at/main/src/index%2Cjs
+// @downloadURL  https://raw.githubusercontent.com/mojax-inc/tempermonky-customize-at/main/src/index%2Cjs
 // @match        https://global.auctown.jp/items/create
 // @grant        none
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
