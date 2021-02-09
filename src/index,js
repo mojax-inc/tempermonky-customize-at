@@ -22,7 +22,7 @@
 
     // タイトル欄の日本語を英語に変換
     // 変換ボタン設置
-    jQuery("#field_title > div.tbody.cell.w70 > div.helper-text-box").after('<button type="button" id="title-get">変換</button>');
+    jQuery("#field_title > div.tbody.cell.w70 > div.helper-text-box").after('<button type="button" id="title-get">日本語→英語</button>');
     let TranslatedTitle = jQuery("#title-get").on('click', function() {
         // 変換ボタン押したらlocalStorageからApiKey取得してタイトルの日本語と合わせてTranslationAPIになげてタイトル欄に上書き
         let titleData = jQuery("#title.form-control.valid").val();
