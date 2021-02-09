@@ -13,11 +13,31 @@
 (function() {
     'use strict';
     // APIキーを入力するテキストボックス
-    // jQuery('div.pull-right').before('<input type="text">');
-    jQuery("#header-sec > div.inner-padding > div.pull-left").after('<input type="text" id="key" style="margin-right:0">');
+    jQuery("#header-sec > div.inner-padding > div.pull-left").after('APIキー:<input type="text" id="key" style="margin-right:0">');
+    // 入力されたらlocalStorageに保存
     jQuery("#key").on('input', function(event) {
-            var ApiKey = jQuery("#key").val();
+            let ApiKey = jQuery("#key").val();
             localStorage.setItem('ApiKey', ApiKey);
     });
 
+    // タイトル欄の日本語を英語に変換
+    // 変換ボタン設置
+    jQuery("#field_title > div.tbody.cell.w70 > div.helper-text-box").after('<button type="button" id="title-get">変換</button>');
+    let TranslatedTitle = jQuery("#title-get").on('click', function() {
+        // 変換ボタン押したらlocalStorageからApiKey取得してタイトルの日本語と合わせてTranslationAPIになげてタイトル欄に上書き
+        let titleData = jQuery("#title.form-control.valid").val();
+        const API_KEY = localStorage.getItem('ApiKey');
+        let uribase = "https://translation.googleapis.com/language/translate/v2?key=" + API_KEY + "&source=ja&target=en&q=" + titleData;
+        let xhr = new XMLHttpRequest();
+            xhr.open('GET', uribase, true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.responseType = 'application/json;text/xml';
+            xhr.onload = function (e) {
+                // alert(this.response);
+                var Mydata = JSON.parse(this.response);
+                // alert(Mydata.data.translations[0].translatedText)
+                jQuery("#title.form-control.valid").val(Mydata.data.translations[0].translatedText);
+            };
+        xhr.send();
+    });
 })();
