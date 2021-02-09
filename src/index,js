@@ -8,10 +8,16 @@
 // @downloadURL  https://raw.githubusercontent.com/mojax-inc/tempermonky-customize-at/main/src/index%2Cjs
 // @match        https://global.auctown.jp/items/create
 // @grant        none
-// @require      https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
 // ==/UserScript==
 
 (function() {
     'use strict';
+    // APIキーを入力するテキストボックス
+    // jQuery('div.pull-right').before('<input type="text">');
+    jQuery("#header-sec > div.inner-padding > div.pull-left").after('<input type="text" id="key" style="margin-right:0">');
+    jQuery("#key").on('input', function(event) {
+            var ApiKey = jQuery("#key").val();
+            localStorage.setItem('ApiKey', ApiKey);
+    });
 
 })();
