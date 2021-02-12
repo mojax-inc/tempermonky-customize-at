@@ -3,15 +3,85 @@
 // @namespace    https://github.com/mojax-inc/tempermonky-customize-at
 // @description  オークタウンのカスタマイズするぞ
 // @author       ノラネコ技術工房<http://noraneko.tech/>
-// @version      0.20210205.0
+// @version      0.20210212.0
 // @updateURL    https://raw.githubusercontent.com/mojax-inc/tempermonky-customize-at/main/src/index%2Cjs
 // @downloadURL  https://raw.githubusercontent.com/mojax-inc/tempermonky-customize-at/main/src/index%2Cjs
 // @match        https://global.auctown.jp/items/create
 // @grant        none
-// @require      https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
 // ==/UserScript==
 
 (function() {
     'use strict';
+    /**
+     * 個別出品画面のタイトル翻訳ボタン
+     */
+    // Google Translation APIキーを入力するテキストボックス
+    jQuery("#header-sec > div.inner-padding > div.pull-left").after('APIキー:<input type="text" id="key" style="margin-right:0">');
+    // 入力されたらlocalStorageに保存
+    jQuery("#key").on('input', function(event) {
+            let ApiKey = jQuery("#key").val();
+            localStorage.setItem('ApiKey', ApiKey);
+    });
+
+    // タイトル欄の日本語を英語に変換
+    // 変換ボタン設置
+    jQuery("#field_title > div.tbody.cell.w70 > div.helper-text-box").after('<button type="button" id="title-get">日本語→英語</button>');
+    let TranslatedTitle = jQuery("#title-get").on('click', function() {
+        // 変換ボタン押したらlocalStorageからApiKey取得してタイトルの日本語と合わせてTranslationAPIになげてタイトル欄に上書き
+        let titleData = jQuery("#title.form-control.valid").val();
+        const API_KEY = localStorage.getItem('ApiKey');
+        let uribase = "https://translation.googleapis.com/language/translate/v2?key=" + API_KEY + "&source=ja&target=en&q=" + titleData;
+        let xhr = new XMLHttpRequest();
+            xhr.open('GET', uribase, true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.responseType = 'application/json;text/xml';
+            xhr.onload = function (e) {
+                // alert(this.response);
+                var Mydata = JSON.parse(this.response);
+                // alert(Mydata.data.translations[0].translatedText)
+                jQuery("#title.form-control.valid").val(Mydata.data.translations[0].translatedText);
+            };
+        xhr.send();
+    });
+
+    /**
+     * 個別出品画面の開始価格と即決価格のドル変換
+     */
+    const url = 'https://api.exchangeratesapi.io/latest?base=JPY';
+    let USDrates = 0;
+    let result = 0;
+    let startPriceJPY = 0;
+    let buynowPriceJPY = 0;
+
+    // 現在のドル/円を取得
+    $.ajaxSetup({ async: false });
+    $.getJSON(url).done(function(data) {
+        USDrates = JSON.stringify(data.rates.USD);
+    });
+    $.ajaxSetup({ async: true });
+
+    // JPYからUSDへ為替レートの変換(小数点以下2桁で返す)
+    function convert_currency(amount) {
+        result = USDrates * amount;
+        result = result.toFixed(2);
+        console.log('result: ' + result);
+        return result;
+    }
+
+    // 日本円入力欄設置
+    // 開始価格
+    jQuery("#start_price").after('<input type="text" id="start_price_jpy" style="margin-left:10px">円');
+    jQuery("#start_price_jpy").on('input', function(event) {
+        startPriceJPY = jQuery("#start_price_jpy").val();
+        jQuery("#start_price").val(convert_currency(startPriceJPY));
+        // console.log('convert_currency(startPriceJPY): ' + convert_currency(startPriceJPY));
+    });;
+
+    // 即決価格
+    jQuery("#buynow_price").after('<input type="text" id="buynow_price_jpy" style="margin-left:10px">円');
+    jQuery("#buynow_price_jpy").on('input', function(event) {
+        buynowPriceJPY = jQuery("#buynow_price_jpy").val();
+        jQuery("#buynow_price").val(convert_currency(buynowPriceJPY));
+    });;
 
 })();
