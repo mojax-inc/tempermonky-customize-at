@@ -12,7 +12,10 @@
 
 (function() {
     'use strict';
-    // APIキーを入力するテキストボックス
+    /**
+     * 個別出品画面のタイトル翻訳ボタン
+     */
+    // Google Translation APIキーを入力するテキストボックス
     jQuery("#header-sec > div.inner-padding > div.pull-left").after('APIキー:<input type="text" id="key" style="margin-right:0">');
     // 入力されたらlocalStorageに保存
     jQuery("#key").on('input', function(event) {
@@ -40,4 +43,40 @@
             };
         xhr.send();
     });
+
+    /**
+     * 個別出品画面の開始価格と即決価格のドル変換
+     * @param amount
+     */
+    // JPYからUSDへ為替レートの変換(小数点以下2桁で返す)
+    function convert_currency(amount) {
+        const url = 'https://api.exchangeratesapi.io/latest?base=JPY';
+        let result = 0;
+        $.getJSON(url).done(function(data) {
+            console.log('data.rates.USD * amount: ' + JSON.stringify(data.rates.USD) * amount);
+
+            result = JSON.stringify(data.rates.USD) * amount;
+            result = result.toFixed(2);
+            console.log('result: ' + result);
+        });
+        console.log('result: ' + result);
+        return result;
+        // console.log('ratesResult: ' + ratesResult);
+        // console.log('data: ' + JSON.stringify(data));
+        // return (data * amount);
+    }
+
+    // 日本円入力欄設置
+    // 開始価格
+    let startPriceJPY = 0;
+    jQuery("#start_price").after('<input type="text" id="start_price_jpy" style="margin-left:10px">円');
+    jQuery("#start_price_jpy").on('input', function(event) {
+        startPriceJPY = jQuery("#start_price_jpy").val();
+        jQuery("#start_price").val(convert_currency(startPriceJPY));
+        console.log('convert_currency(startPriceJPY): ' + convert_currency(startPriceJPY));
+    });;
+
+    // 即決価格
+    jQuery("#buynow_price").after('<input type="text" id="buynow_price_jpy" style="margin-left:10px">円');
+
 })();
