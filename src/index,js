@@ -16,21 +16,31 @@
      * 個別出品画面のタイトル翻訳ボタン
      */
     // Google Translation APIキーを入力するテキストボックス
-    jQuery("#header-sec > div.inner-padding > div.pull-left").after('APIキー:<input type="text" id="key" style="margin-right:0">');
-    // 入力されたらlocalStorageに保存
-    jQuery("#key").on('input', function(event) {
-            let ApiKey = jQuery("#key").val();
-            localStorage.setItem('ApiKey', ApiKey);
+    jQuery("#header-sec > div.inner-padding > div.pull-left").after('&nbsp;&nbsp;&nbsp;&nbsp;翻訳APIキー:<input type="text" id="translate-key" style="margin-right:0">');
+
+    // openexchangeratesのapp_idを入力するテキストボックス
+    jQuery('#translate-key').after('&nbsp;&nbsp;&nbsp;&nbsp;為替レートAPIキー:<input type="text" id="exchange-rates-key" style="margin-right:0">');
+
+    // 翻訳APIキー入力されたらlocalStorageに保存
+    jQuery("#translate-key").on('input', function(event) {
+        let TranslateApiKey = jQuery("#translate-key").val();
+        localStorage.setItem('TranslateApiKey', TranslateApiKey);
+    });
+
+    // 為替レートAPIキー入力されたらlocalStorageに保存
+    jQuery("#exchange-rates-key").on('input', function(event) {
+        let ExchangeRatesApiKey = jQuery("#exchange-rates-key").val();
+        localStorage.setItem('ExchangeRatesApiKey', ExchangeRatesApiKey);
     });
 
     // タイトル欄の日本語を英語に変換
     // 変換ボタン設置
     jQuery("#field_title > div.tbody.cell.w70 > div.helper-text-box").after('<button type="button" id="title-get">日本語→英語</button>');
     let TranslatedTitle = jQuery("#title-get").on('click', function() {
-        // 変換ボタン押したらlocalStorageからApiKey取得してタイトルの日本語と合わせてTranslationAPIになげてタイトル欄に上書き
+        // 変換ボタン押したらlocalStorageからTranslateApiKey取得してタイトルの日本語と合わせてTranslationAPIになげてタイトル欄に上書き
         let titleData = jQuery("#title.form-control.valid").val();
-        const API_KEY = localStorage.getItem('ApiKey');
-        let uribase = "https://translation.googleapis.com/language/translate/v2?key=" + API_KEY + "&source=ja&target=en&q=" + titleData;
+        const TranslateAPI_KEY = localStorage.getItem('TranslateApiKey');
+        let uribase = "https://translation.googleapis.com/language/translate/v2?key=" + TranslateAPI_KEY + "&source=ja&target=en&q=" + titleData;
         let xhr = new XMLHttpRequest();
             xhr.open('GET', uribase, true);
             xhr.setRequestHeader("Content-Type", "application/json");
@@ -47,22 +57,27 @@
     /**
      * 個別出品画面の開始価格と即決価格のドル変換
      */
-    const url = 'https://api.exchangeratesapi.io/latest?base=JPY';
-    let USDrates = 0;
+    // ローカルストレージからキー取得
+    const ExchangeRatesAPI_KEY = localStorage.getItem('ExchangeRatesApiKey');
+
+    // baseはUSD
+    const url = 'https://openexchangerates.org/api/latest.json?app_id=' + ExchangeRatesAPI_KEY;
+    let JPYrates = 0;
     let result = 0;
     let startPriceJPY = 0;
     let buynowPriceJPY = 0;
 
-    // 現在のドル/円を取得
+    // 現在の円/ドルを取得
     $.ajaxSetup({ async: false });
     $.getJSON(url).done(function(data) {
-        USDrates = JSON.stringify(data.rates.USD);
+        JPYrates = JSON.stringify(data.rates.JPY);
     });
     $.ajaxSetup({ async: true });
-
+    console.log('JPYrates: ' + JPYrates);
     // JPYからUSDへ為替レートの変換(小数点以下2桁で返す)
     function convert_currency(amount) {
-        result = USDrates * amount;
+        result = amount / JPYrates;
+        console.log('result: ' + result);
         result = result.toFixed(2);
         console.log('result: ' + result);
         return result;
